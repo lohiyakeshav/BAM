@@ -1,7 +1,9 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { useTheme } from "@/components/ThemeProvider";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { BrainCircuit } from "lucide-react";
 
 // Mock data for the reports page
 const monthlyReturnsData = [
@@ -44,7 +46,45 @@ const Reports = () => {
   
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Investment Reports</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight">Investment Reports</h1>
+        <Button asChild className="flex items-center gap-2">
+          <Link to="/report-generator">
+            <BrainCircuit className="h-4 w-4" />
+            AI Report Generator
+          </Link>
+        </Button>
+      </div>
+      
+      <Card className="md:col-span-2 animate-fade-in border-2 border-primary border-dashed mb-6">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>AI-Powered Investment Reports</CardTitle>
+            <CardDescription>Generate personalized investment recommendations</CardDescription>
+          </div>
+          <Button asChild>
+            <Link to="/report-generator">
+              Create New Report
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1">
+              <h3 className="text-lg font-medium mb-2">Features:</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li>Personalized asset allocation based on risk profile</li>
+                <li>Performance projections with expected returns</li>
+                <li>Risk assessment with volatility metrics</li>
+                <li>Market insights powered by Yahoo Finance data</li>
+              </ul>
+            </div>
+            <div className="flex items-center justify-center p-4 bg-primary-foreground rounded-lg">
+              <BrainCircuit className="h-20 w-20 text-primary" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="animate-fade-in">

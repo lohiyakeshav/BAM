@@ -2,55 +2,129 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useLoading } from "@/lib/LoadingContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
+
+// Components
+const BatmanLogo = () => (
+  <img 
+    width="50" 
+    height="50" 
+    src="https://img.icons8.com/ios-filled/50/batman-old.png" 
+    alt="batman-logo"
+    className="h-12 w-12"
+  />
+);
+
+const RegisterHeader = () => (
+  <div className="text-center">
+    <div className="flex justify-center">
+      <BatmanLogo />
+    </div>
+    <h2 className="mt-4 text-2xl font-bold">Create your account</h2>
+    <p className="mt-2 text-muted-foreground">
+      Enter your details to get started with BAM
+    </p>
+  </div>
+);
+
+const RegisterForm = ({ 
+  name,
+  setName,
+  email, 
+  setEmail, 
+  password, 
+  setPassword, 
+  isLoading, 
+  handleRegister 
+}: {
+  name: string;
+  setName: (name: string) => void;
+  email: string;
+  setEmail: (email: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
+  isLoading: boolean;
+  handleRegister: (e: React.FormEvent) => void;
+}) => (
+  <form className="space-y-6" onSubmit={handleRegister}>
+    <div>
+      <Label htmlFor="name">Full Name</Label>
+      <Input 
+        id="name" 
+        type="text" 
+        placeholder="John Doe" 
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required 
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="email">Email address</Label>
+      <Input 
+        id="email" 
+        type="email" 
+        placeholder="name@example.com" 
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required 
+      />
+    </div>
+    
+    <div>
+      <Label htmlFor="password">Password</Label>
+      <Input 
+        id="password" 
+        type="password" 
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required 
+        minLength={8}
+      />
+      <p className="text-sm text-muted-foreground mt-1">
+        Password must be at least 8 characters long
+      </p>
+    </div>
+    
+    <Button type="submit" className="w-full" disabled={isLoading}>
+      {isLoading ? "Creating account..." : "Create account"}
+    </Button>
+  </form>
+);
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
-  const { showLoading, hideLoading } = useLoading();
-  
-  // Hide loader if component unmounts
-  useEffect(() => {
-    return () => hideLoading();
-  }, [hideLoading]);
+  const { register, isLoading } = useAuth();
 
-  const handleRegister = (e: React.FormEvent) => {
+  // Set ready state after a brief delay to ensure component mounts properly
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
-      return;
+    try {
+      await register({ name, email, password });
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create account");
     }
-    
-    setIsLoading(true);
-    showLoading(); // Show the loader animation
-    
-    // Simulate registration process
-    setTimeout(() => {
-      // In a real app, you would register the user with a backend
-      if (name && email && password) {
-        // Store user info in localStorage (this is just for demo - use a proper auth system in production)
-        localStorage.setItem("user", JSON.stringify({ name, email, isLoggedIn: true, isNewUser: true }));
-        toast.success("Registration successful! Please complete the onboarding questionnaire.");
-        setTimeout(() => {
-          hideLoading(); // Ensure loader is hidden before navigation
-          navigate("/questionnaire");
-        }, 500);
-      } else {
-        toast.error("Please fill in all fields.");
-        hideLoading(); // Hide loader on error
-        setIsLoading(false);
-      }
-    }, 1500);
   };
+
+  if (!ready) {
+    return null; // Return nothing while component initializes
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background relative">
@@ -60,72 +134,22 @@ export default function Register() {
       </div>
       
       <div className="w-full max-w-md p-8 space-y-8 bg-card rounded-lg border shadow-md">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <Shield className="h-12 w-12 text-primary" />
-          </div>
-          <h2 className="mt-4 text-2xl font-bold">Create an account</h2>
-          <p className="mt-2 text-muted-foreground">
-            Join Batman Asset Management today
-          </p>
-        </div>
-        
-        <form className="space-y-6" onSubmit={handleRegister}>
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input 
-              id="name" 
-              type="text" 
-              placeholder="John Doe" 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="email">Email address</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="name@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input 
-              id="confirmPassword" 
-              type="password" 
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create account"}
-          </Button>
-        </form>
+        <RegisterHeader />
+        <RegisterForm 
+          name={name}
+          setName={setName}
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          isLoading={isLoading}
+          handleRegister={handleRegister}
+        />
         
         <div className="text-center text-sm">
           <p className="text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/auth/login" className="text-primary hover:underline">
               Sign in
             </Link>
           </p>

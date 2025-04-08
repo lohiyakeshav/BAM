@@ -1,18 +1,17 @@
-import React from 'react';
+import { cn } from "@/lib/utils";
 
-const Loader: React.FC = () => {
+interface LoaderProps {
+  className?: string;
+}
+
+export function Loader({ className }: LoaderProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
-      <div className="relative w-[75px] h-[100px]">
-        <div className="absolute bottom-0 w-[10px] h-[50%] bg-primary shadow-sm origin-bottom animate-barUp1 left-0"></div>
-        <div className="absolute bottom-0 w-[10px] h-[50%] bg-primary shadow-sm origin-bottom animate-barUp2 left-[15px]"></div>
-        <div className="absolute bottom-0 w-[10px] h-[50%] bg-primary shadow-sm origin-bottom animate-barUp3 left-[30px]"></div>
-        <div className="absolute bottom-0 w-[10px] h-[50%] bg-primary shadow-sm origin-bottom animate-barUp4 left-[45px]"></div>
-        <div className="absolute bottom-0 w-[10px] h-[50%] bg-primary shadow-sm origin-bottom animate-barUp5 left-[60px]"></div>
-        <div className="absolute bottom-[10px] left-0 w-[10px] h-[10px] bg-primary/80 rounded-full animate-ball"></div>
-      </div>
+    <div className={cn("flex items-center justify-center gap-1 h-8", className)}>
+      <div className="w-1 h-full bg-primary rounded-full animate-barUp1" />
+      <div className="w-1 h-full bg-primary rounded-full animate-barUp2" />
+      <div className="w-1 h-full bg-primary rounded-full animate-barUp3" />
+      <div className="w-1 h-full bg-primary rounded-full animate-barUp4" />
+      <div className="w-1 h-full bg-primary rounded-full animate-barUp5" />
     </div>
   );
-};
-
-export { Loader }; 
+} 

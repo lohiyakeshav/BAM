@@ -1,120 +1,116 @@
-import { ThemeToggle } from './ThemeToggle';
-import { Button } from './ui/button';
-import { Search, User, LogOut, Shield } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { toast } from 'sonner';
-import { useLoading } from '@/lib/LoadingContext';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "./ThemeToggle";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { BarChart, PieChart, LineChart, TrendingUp, User, Sparkles, Bot } from "lucide-react";
 
 export function Header() {
-  const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
-  const { showLoading, hideLoading } = useLoading();
-  
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserName(user.name || user.email || "User");
-    
-    // Clean up function to hide loader if component unmounts during loading
-    return () => hideLoading();
-  }, [hideLoading]);
-  
-  const handleLogout = () => {
-    showLoading(); // Show loader animation
-    
-    // Simulate a brief delay for logout process
-    setTimeout(() => {
-      localStorage.removeItem("user");
-      toast.success("Logged out successfully");
-      setTimeout(() => {
-        hideLoading(); // Hide loader after toast appears, before navigation
-        navigate("/landing");
-      }, 500);
-    }, 800);
-  };
-  
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
+  const { logout, user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <Shield className="h-6 w-6 text-primary" />
-            <span className="text-lg font-bold hidden sm:inline-block">Batman Asset Management</span>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 flex">
+          <Link to="/dashboard" className="mr-6 flex items-center space-x-2">
+            <img 
+              width="24" 
+              height="24" 
+              src="https://img.icons8.com/ios-filled/50/batman-old.png" 
+              alt="batman-logo"
+              className="h-6 w-6"
+            />
+            <span className="font-bold">BAM</span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link to="/" className="transition-colors hover:text-foreground/80">
-              Dashboard
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 text-foreground"
+            >
+              <BarChart className="h-4 w-4" />
+              <span>Dashboard</span>
             </Link>
-            <Link to="/reports" className="transition-colors hover:text-foreground/80">
-              Reports
+            <Link
+              to="/dashboard/investment-report"
+              className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 text-foreground"
+            >
+              <PieChart className="h-4 w-4" />
+              <span>Investment Report</span>
             </Link>
-            <Link to="/portfolio" className="transition-colors hover:text-foreground/80">
-              Portfolio
+            <Link
+              to="/dashboard/portfolio"
+              className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 text-foreground"
+            >
+              <Bot className="h-4 w-4" />
+              <span>BAM AI</span>
             </Link>
-            <Link to="/insights" className="transition-colors hover:text-foreground/80">
-              AI Insights
+            <Link
+              to="/dashboard/market-analysis"
+              className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 text-foreground"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>Market Analysis</span>
             </Link>
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <Button variant="outline" className="inline-flex items-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover:text-accent-foreground px-4 py-2 relative h-9 w-full justify-start text-sm sm:pr-12 md:w-40 lg:w-64">
-              <span className="hidden lg:inline-flex">Search...</span>
-              <span className="inline-flex lg:hidden">Search...</span>
-              <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                <Search className="h-3 w-3" />
-              </kbd>
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <nav className="flex items-center space-x-2">
+            <ThemeToggle />
+            <Button variant="outline" size="sm" className="hidden md:flex items-center gap-1.5" asChild>
+              <Link to="/dashboard/profile">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline-block">
+                  {user?.name || 'Profile'}
+                </span>
+              </Link>
             </Button>
-          </div>
-          <ThemeToggle />
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full ml-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>
-                <div className="flex flex-col">
-                  <span>Welcome,</span>
-                  <span className="font-bold">{userName}</span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => logout()}
+            >
+              Logout
+            </Button>
+          </nav>
         </div>
+      </div>
+      <div className="md:hidden border-t py-2">
+        <nav className="container flex justify-between items-center">
+          <Link
+            to="/dashboard"
+            className="flex flex-col items-center text-xs"
+          >
+            <BarChart className="h-5 w-5" />
+            <span>Dashboard</span>
+          </Link>
+          <Link
+            to="/dashboard/investment-report"
+            className="flex flex-col items-center text-xs"
+          >
+            <PieChart className="h-5 w-5" />
+            <span>Reports</span>
+          </Link>
+          <Link
+            to="/dashboard/portfolio"
+            className="flex flex-col items-center text-xs"
+          >
+            <Bot className="h-5 w-5" />
+            <span>BAM AI</span>
+          </Link>
+          <Link
+            to="/dashboard/market-analysis"
+            className="flex flex-col items-center text-xs"
+          >
+            <TrendingUp className="h-5 w-5" />
+            <span>Markets</span>
+          </Link>
+          <Link
+            to="/dashboard/profile"
+            className="flex flex-col items-center text-xs"
+          >
+            <User className="h-5 w-5" />
+            <span>Profile</span>
+          </Link>
+        </nav>
       </div>
     </header>
   );

@@ -82,7 +82,14 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({ children }) =>
   return (
     <LoadingContext.Provider value={{ isLoading, showLoading, hideLoading }}>
       {children}
-      {isLoading && <Loader />}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader className="h-12 w-24" />
+            <p className="text-sm text-muted-foreground animate-pulse">Loading...</p>
+          </div>
+        </div>
+      )}
     </LoadingContext.Provider>
   );
 }; 
